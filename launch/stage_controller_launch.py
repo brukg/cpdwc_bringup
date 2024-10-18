@@ -12,7 +12,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    num_robots = 1
+    num_robots = 4
     controller_node_ = [None] * num_robots
     transform_node_ = [None] * num_robots
     scan2pt_ = [None] * num_robots
@@ -21,7 +21,7 @@ def generate_launch_description():
     for i in range(num_robots):
         robot_name = "robot_" + str(i)
         controller_node_[i] = Node(
-            package='pdwa',
+            package='pdwc',
             executable='controller',
             name='controller_node' + str(i),
             emulate_tty=True,
@@ -48,15 +48,15 @@ def generate_launch_description():
                 {'speed_cost_gain': 0.750},
                 {'obstacle_cost_gain': 3.50},
                 {'goal_tolerance': 0.750},
-                {'reverse_penality': 3.0},
+                {'reverse_penality': 3.50},
                 {'robot_radius': 0.5},
                 {'obstacle_radius': 0.75},
-                {'obstacle_margin': 0.5},
+                {'obstacle_margin': 1.25},
                 {'collision_threshold': 5.0},
             ],
         )
         transform_node_[i] = Node(
-            package='pdwa',
+            package='pdwc',
             executable='transform.py',
             name='transform_node' + str(i),
             namespace=robot_name,
@@ -106,7 +106,7 @@ def generate_launch_description():
             {'max_iterations': 1000},
             # {'tracker_type': 'kf'},
             {'tracker_type': 'enkf'},
-            {'sliding_window_size': 7},
+            {'sliding_window_size': 12},
             {'state_size': 4},
             {'control_size': 0},
             {'measurement_size': 4},

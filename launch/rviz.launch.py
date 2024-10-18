@@ -9,11 +9,11 @@ from launch_ros.actions import Node
 def generate_launch_description():
 
     ####### DATA INPUT ##########
-    package_description = "bringup"
+    package_description = "cpdwc_bringup"
 
     print("launching rviz")
     # RVIZ Configuration
-    rviz_config_dir = os.path.join(get_package_share_directory(package_description), 'config', 'urdf_vis.rviz')
+    rviz_config_dir = os.path.join(get_package_share_directory(package_description), 'config', 'agv_vis.rviz')
 
     rviz_node = Node(
             package='rviz2',

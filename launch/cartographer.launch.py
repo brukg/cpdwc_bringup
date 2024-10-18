@@ -1,5 +1,5 @@
 import os
-from ament_index_python.packages import get_package_share_directory
+from ament_index_python.packages import get_package_share_  directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
@@ -12,13 +12,13 @@ from launch.substitutions import ThisLaunchFileDir
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='False')
-    itav_agv_cartographer_prefix = get_package_share_directory('bringup')
+    itav_agv_cartographer_prefix = get_package_share_directory('cpdwc_bringup')
     cartographer_config_dir = LaunchConfiguration('cartographer_config_dir', default=os.path.join(
                                                   itav_agv_cartographer_prefix, 'config'))
     configuration_basename = LaunchConfiguration('configuration_basename',
                                                  default='cartographer_2d.lua')
     
-    cartographer_map_file = os.path.join(get_package_share_directory('bringup'), 'maps/one', 'b.pbstream')
+    cartographer_map_file = os.path.join(get_package_share_directory('cpdwc_bringup'), 'maps/one', 'b.pbstream')
 
     resolution = LaunchConfiguration('resolution', default='0.05')
     publish_period_sec = LaunchConfiguration('publish_period_sec', default='0.5')
@@ -29,7 +29,7 @@ def generate_launch_description():
         )
     start = ExecuteProcess(
             cmd=['ros2', 'service', 'call', '/start_trajectory', 'cartographer_ros_msgs/srv/StartTrajectory', 
-                 '{configuration_directory: "/home/phoenix/ros2_ws/src/tavil/bringup/config", configuration_basename:  "cartographer_2d.lua", use_initial_pose: false, relative_to_trajectory_id: 1, initial_pose: {position: {x: 20., y: 20., z: 0.}, orientation: {x: 0., y: 0., z: 0., w: 1.}}}'],
+                 '{configuration_directory: "/home/phoenix/ros2_ws/src/tavil/cpdwc_bringup/config", configuration_basename:  "cartographer_2d.lua", use_initial_pose: false, relative_to_trajectory_id: 1, initial_pose: {position: {x: 20., y: 20., z: 0.}, orientation: {x: 0., y: 0., z: 0., w: 1.}}}'],
             output='screen'
         ),
     return LaunchDescription([

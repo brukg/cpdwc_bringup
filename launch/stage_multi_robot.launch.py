@@ -5,13 +5,16 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
+from nav2_common.launch import RewrittenYaml
 
 
 def generate_launch_description():
+    # Get the launch directory
+    bringup_dir = get_package_share_directory('cpdwc_bringup')
 
     use_sim_time = LaunchConfiguration('use_sim_time',  default='false')
     this_directory = get_package_share_directory("stage_ros2")
@@ -19,14 +22,26 @@ def generate_launch_description():
     launch_dir = os.path.join(this_directory, 'launch')
     stage = LaunchConfiguration('stage')
     rviz = LaunchConfiguration('rviz')
+    params_file = LaunchConfiguration('params_file')
     config = LaunchConfiguration('config')
     map_yaml_file = LaunchConfiguration('map')
     world = LaunchConfiguration('world')
     namespace = LaunchConfiguration('namespace')
+    use_respawn = LaunchConfiguration('use_respawn')
+    lifecycle_nodes = ['map_server']
     
     param_substitutions = {
         'use_sim_time': use_sim_time,
         'yaml_filename': map_yaml_file}
+    
+    configured_params = RewrittenYaml(
+        source_file=params_file,
+        root_key=namespace,
+        param_rewrites=param_substitutions,
+        convert_types=True)
+    
+    stdout_linebuf_envvar = SetEnvironmentVariable(
+        'RCUTILS_LOGGING_BUFFERED_STREAM', '1')
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace',
         default_value='',
@@ -36,6 +51,13 @@ def generate_launch_description():
         'stage',
         default_value='True',
         description='Whether run a stage')
+    declare_params_file_cmd = DeclareLaunchArgument(
+        'params_file',
+        default_value=os.path.join(bringup_dir, 'params', 'nav2_params.yaml'),
+        description='Full path to the ROS2 parameters file to use for all launched nodes')
+    declare_use_respawn_cmd = DeclareLaunchArgument(
+        'use_respawn', default_value='False',
+        description='Whether to respawn if a node crashes. Applied when composition is disabled.')
 
     declare_rviz_cmd = DeclareLaunchArgument(
         'rviz',
@@ -115,14 +137,18 @@ def generate_launch_description():
     map_server = Node(
         package='nav2_map_server',
         executable='map_server',
-        parameters=[param_substitutions],
+        name='map_server',
+        parameters=[configured_params],
+        output='screen',
+        respawn=use_respawn,
+        respawn_delay=2.0
 
     )
 
     map_server_life_cycle_manager = Node(
         package='nav2_lifecycle_manager',
         executable='lifecycle_manager',
-        name='map_server_lifecycle_manager',
+        name='lifecycle_manager_localization',
         output='screen',
         parameters=[{'use_sim_time': use_sim_time},
                     {'autostart': True},
@@ -130,7 +156,7 @@ def generate_launch_description():
     )
 
     controller_node = Node(
-        package='pdwa',
+        package='pdwc',
         executable='controller',
         emulate_tty=True,
         output="screen",
@@ -168,7 +194,7 @@ def generate_launch_description():
     )
 
     transform_node = Node(
-        package='pdwa',
+        package='pdwc',
         executable='transform.py',
         name='transform_node',
         emulate_tty=True,
@@ -185,11 +211,13 @@ def generate_launch_description():
         declare_namespace_cmd,
         declare_rviz_cmd,
         declare_stage_cmd,
+        declare_params_file_cmd,
+        declare_use_respawn_cmd,
         declare_config,
         declare_world,
         declare_map,
-        # map_server,
-        # map_server_life_cycle_manager,
+        map_server,
+        map_server_life_cycle_manager,
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(launch_dir, 'rviz.launch.py')),
             condition=IfCondition(rviz),
@@ -200,8 +228,8 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(os.path.join(launch_dir, 'stage.launch.py')),
             condition=IfCondition(stage),
             launch_arguments={'world': world}.items()),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(os.path.join(launch_dir, 'map_server_launch.py')),),
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource(os.path.join(launch_dir, 'map_server_launch.py')),),
         st_map2odom0,
         st_map2world0,
         st_map2odom1,

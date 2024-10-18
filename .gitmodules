@@ -1,0 +1,3 @@
+[submodule "pdwc"]
+	path = pdwc
+	url = https://github.com/brukg/pdwc
