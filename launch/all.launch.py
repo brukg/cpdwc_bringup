@@ -12,9 +12,9 @@ from launch.substitutions import ThisLaunchFileDir
 def generate_launch_description():
     description_dir = get_package_share_directory('itav_agv_description')
     sick_safetyscanners2 = get_package_share_directory('sick_safetyscanners2')
-    bringup_dir = get_package_share_directory('bringup')
+    bringup_dir = get_package_share_directory('cpdwc_bringup')
 
-    # cartographer_map_file = os.path.join(get_package_share_directory('bringup'), 'maps/005', 'map.yaml')
+    # cartographer_map_file = os.path.join(get_package_share_directory('cpdwc_bringup'), 'maps/005', 'map.yaml')
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([description_dir, '/launch/urdf.launch.py']),
@@ -24,9 +24,9 @@ def generate_launch_description():
             PythonLaunchDescriptionSource([description_dir, '/launch/agv_state.launch.py']),
         ),
 
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([bringup_dir, '/launch/localization_launch.py']),
-        ),
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource([bringup_dir, '/launch/localization_launch.py']),
+        # ),
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([sick_safetyscanners2, '/launch/safety_all.launch.py']),
@@ -36,7 +36,7 @@ def generate_launch_description():
         # ),
 
         # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource([description_dir, '/launch/tracker.py']),
+        #     PythonLaunchDescriptionSource([description_dir, '/launch/cpdwc_tracker.py']),
         # ),
 
 

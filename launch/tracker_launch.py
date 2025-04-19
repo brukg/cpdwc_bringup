@@ -6,9 +6,9 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(
-            package='tracker',
-            executable='tracker',
-            name='tracker',
+            package='cpdwc_tracker',
+            executable='cpdwc_tracker',
+            name='cpdwc_tracker',
             namespace=namespace,
             parameters= [
                 {'visualize': True},
@@ -52,12 +52,12 @@ def generate_launch_description():
 
                 ("in_1", "safety_lidar_front_link/scan"),
                 ("in_2", "safety_lidar_back_link/scan"),
-                ("out", "tracker/point_clusters"),
+                ("out", "cpdwc_tracker/point_clusters"),
             ],
         ),
 
         # Node(
-        #     package='tracker',
+        #     package='cpdwc_tracker',
         #     executable='scan2pc.py',
         #     name='scan2pointcloud',
         # )

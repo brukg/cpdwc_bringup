@@ -12,7 +12,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    num_robots = 4
+    num_robots = 1
     controller_node_ = [None] * num_robots
     transform_node_ = [None] * num_robots
     scan2pt_ = [None] * num_robots
@@ -21,7 +21,7 @@ def generate_launch_description():
     for i in range(num_robots):
         robot_name = "robot_" + str(i)
         controller_node_[i] = Node(
-            package='pdwc',
+            package='cpdwc',
             executable='controller',
             name='controller_node' + str(i),
             emulate_tty=True,
@@ -56,7 +56,7 @@ def generate_launch_description():
             ],
         )
         transform_node_[i] = Node(
-            package='pdwc',
+            package='cpdwc',
             executable='transform.py',
             name='transform_node' + str(i),
             namespace=robot_name,
@@ -69,7 +69,7 @@ def generate_launch_description():
             ]
         )
         scan2pt_[i] = Node(
-            package='tracker',
+            package='cpdwc_tracker',
             executable='scan2pc.py',
             name='scan2pointcloud2',
             namespace=robot_name,
@@ -79,9 +79,9 @@ def generate_launch_description():
         )
             
         tracker_[i] = Node(
-            package='tracker',
-            executable='tracker',
-            name='tracker' + str(i),
+            package='cpdwc_tracker',
+            executable='cpdwc_tracker',
+            name='cpdwc_tracker' + str(i),
             namespace=robot_name,
             parameters= [
             {'visualize': True},
@@ -115,14 +115,14 @@ def generate_launch_description():
             # {'data_association_type': 'greedy'},
             # {'data_association_type': 'jpda'},
             # {'data_association_type': 'jcbb'},
-            {'ensemble_size': 50},
+            {'ensemble_size': 5},
             {'predict_num_with_no_update': 20},
 
         ],
         remappings=[
-            ("in_1", "base_scan1"),
+            ("in_1", "base_scan"),
             ("in_2", "base_scan2"),
-            ("out", "itav_agv/tracker/point_clusters"),
+            ("out", "itav_agv/cpdwc_tracker/point_clusters"),
         ],
     )
     

@@ -11,7 +11,7 @@ from launch.substitutions import EnvironmentVariable
 def generate_launch_description():
 
     ####### DATA INPUT ##########
-    package_description = "bringup"
+    package_description = "cpdwc_bringup"
     
    
     config_dir = os.path.join(get_package_share_directory(package_description), 'config', 'robot_localization.yaml')
